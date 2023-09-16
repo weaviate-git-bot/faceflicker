@@ -88,4 +88,9 @@ export default StyleSheet.create({
         justifyContent: 'space-between',
         padding: 10,
       },
+    /* Result page specific styles */
+    resultPage: {
+        padding: 10,
+        gap: 10,
+    }
 });

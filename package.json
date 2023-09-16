@@ -24,7 +24,8 @@
     "react-native-screens": "~3.22.0",
     "react-native-web": "~0.19.6",
     "vector-icons": "^0.1.0",
-    "expo-file-system": "~15.4.4"
+    "expo-file-system": "~15.4.4",
+    "expo-image-picker": "~14.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

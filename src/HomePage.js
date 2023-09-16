@@ -7,16 +7,12 @@ export default function HomeScreen({ navigation }) {
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', }}>
         <Text>Home Screen</Text>
         <Button
-          title="App Details"
-          onPress={() => navigation.navigate('Details')}
-        />
-        <Button
           title="Crowd Scanner"
           onPress={() => navigation.navigate('Crowd Scanner')}
         />
         <Button
-          title="Gallery"
-          onPress={() => navigation.navigate('Gallery', { savedCaptures: [] })}
+          title="App Details"
+          onPress={() => navigation.navigate('Details')}
         />
       </View>
     );
