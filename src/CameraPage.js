@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, Text, Button } from 'react-native';
 import { Camera, CameraType, FlashMode } from 'expo-camera';
+import * as MediaLibrary from "expo-media-library";
 import styles from './styles';
 import CameraToolBar from './components/toolbar';
 import GalleryPreview from './components/gallerypreview';
+import * as FileSystem from 'expo-file-system';
 
 export default class CameraPage extends React.Component {
     camera = null;
@@ -15,6 +17,7 @@ export default class CameraPage extends React.Component {
         // start the back camera by default
         cameraType: CameraType.back,
         cameraPermissionGranted: null,
+        api_url: "http://172.29.138.91:5000/search",
     };
     async componentDidMount() {
         await this.requestCameraPermissions();
@@ -29,6 +32,20 @@ export default class CameraPage extends React.Component {
         this.setState({ cameraPermissionGranted: camPermissionGranted });
     };
 
+    saveImage = async (uri) => {
+        try {
+          // Request device storage access permission
+          const { status } = await MediaLibrary.requestPermissionsAsync();
+          if (status === "granted") {
+          // Save image to media library
+            await MediaLibrary.saveToLibraryAsync(uri);
+            console.log("Image successfully saved");
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      
     setFlashMode = (flashMode) => this.setState({ flashMode });
     setCameraType = (cameraType) => this.setState({ cameraType });
 
@@ -42,11 +59,39 @@ export default class CameraPage extends React.Component {
     handleShortCapture = async () => {
         const photoData = await this.camera.takePictureAsync();
         this.setState({ capturing: false, captures: [photoData, ...this.state.captures] })
+        this.saveImage(photoData.uri);
+        // console.log(Object.keys(photoData));
+        // console.log(photoData.uri);
+        try {
+            const imgInfo = await FileSystem.getInfoAsync(photoData.uri, {size: true});
+            console.log(imgInfo);
+            const imgBase64 = await FileSystem.readAsStringAsync(photoData.uri, {encoding: FileSystem.EncodingType.Base64}) + 'data:image/png;base64';
+            console.log("image obtained as base64");
+            const response = await fetch(this.state.api_url, {
+                method: "POST",
+                mode: "no-cors", // no-cors, *cors, same-origin
+                // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                // credentials: "same-origin", // include, *same-origin, omit
+                // headers: {
+                //   "Content-Type": "application/json",
+                //   // 'Content-Type': 'application/x-www-form-urlencoded',
+                // },
+                redirect: "follow",
+                body: JSON.stringify(imgBase64), // body data type must match "Content-Type" header
+              });
+              console.log("response obtained");
+              console.log(response.json());
+          } catch (error) {
+            console.error('base64 conversion error', error);
+            throw error;
+          }
+        
     };
     // Record a video and add returned data to captures array
     handleLongCapture = async () => {
         const videoData = await this.camera.recordAsync();
         this.setState({ capturing: false, captures: [videoData, ...this.state.captures] });
+        this.saveImage(videoData.uri);
     };
     exitToGallery = () => {
         this.props.navigation.navigate('Gallery', { savedCaptures: this.state.captures, });
