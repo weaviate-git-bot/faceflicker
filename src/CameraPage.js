@@ -67,18 +67,14 @@ export default class CameraPage extends React.Component {
             console.log(imgInfo);
             const imgBase64 = await FileSystem.readAsStringAsync(photoData.uri, {encoding: FileSystem.EncodingType.Base64}) + 'data:image/png;base64';
             console.log("image obtained as base64");
+            const formData = new FormData();
+            formData.append("base64FrameData", imgBase64);
             const response = await fetch(this.state.api_url, {
                 method: "POST",
-                mode: "no-cors", // no-cors, *cors, same-origin
-                // cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-                // credentials: "same-origin", // include, *same-origin, omit
-                // headers: {
-                //   "Content-Type": "application/json",
-                //   // 'Content-Type': 'application/x-www-form-urlencoded',
-                // },
+                mode: "no-cors",
                 redirect: "follow",
-                body: JSON.stringify(imgBase64), // body data type must match "Content-Type" header
-              });
+                body: formData, 
+            });
               console.log("response obtained");
               console.log(response.json());
           } catch (error) {
