@@ -3,6 +3,11 @@ import { StyleSheet, Dimensions } from 'react-native';
 const { width: devDisplayWidth, height: devDisplayHeight } = Dimensions.get('window');
 // TODO: change var names
 export default StyleSheet.create({
+    alignElemsHorizCenter: {
+        flex: 1,
+        alignItems: 'center',  // Horizontally center
+        justifyContent: 'flex-start',
+    },
     alignElemsCenter: {
         flex: 1,
         alignItems: 'center',
@@ -18,6 +23,11 @@ export default StyleSheet.create({
         bottom: 0,
     },
     /* Camera specific styles */
+    permissionsDeniedView: {
+        gap: '30px 0px',
+        paddingTop: 60,
+        paddingHorizontal: 20,
+    },
     bottomCamToolbar: {
         width: devDisplayWidth,
         position: 'absolute',
@@ -45,8 +55,12 @@ export default StyleSheet.create({
         borderColor: "transparent",
     },
     /* Gallery specific styles */
-    galleryContainer: { 
-        bottom: 100 
+    galPage: {
+        gap: 10,
+        paddingTop: 10,
+    },
+    galleryPreviewContainer: { 
+        bottom: 100,
     },
     galleryImageContainer: { 
         width: 75, 
@@ -56,5 +70,22 @@ export default StyleSheet.create({
     galleryImage: { 
         width: 75, 
         height: 75 
-    }
+    },
+    galleryImageMain: { 
+        width: 100, 
+        height: 100 
+    },
+    mainGalleryView: {
+        width: devDisplayWidth,
+        height: devDisplayHeight * 0.8,
+        display: 'flex',
+        gap: '10px 10px',
+        padding: 10,
+    },
+    row: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 10,
+      },
 });

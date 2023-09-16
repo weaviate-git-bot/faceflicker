@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Button } from 'react-native';
 import { Camera, CameraType, FlashMode } from 'expo-camera';
 import styles from './styles';
 import CameraToolBar from './components/toolbar';
-import ScrollGallery from './components/scrollgallery';
+import GalleryPreview from './components/gallerypreview';
 
 export default class CameraPage extends React.Component {
     camera = null;
@@ -17,13 +17,16 @@ export default class CameraPage extends React.Component {
         cameraPermissionGranted: null,
     };
     async componentDidMount() {
+        await this.requestCameraPermissions();
+    };
+    requestCameraPermissions = async () => {
         // Request camera permission
         const cam_perm_status = await Camera.requestCameraPermissionsAsync()
         const mic_perm_status = await Camera.requestMicrophonePermissionsAsync()
 
-        const cameraPermissionGranted = (cam_perm_status.status === 'granted' && mic_perm_status.status === 'granted');
+        const camPermissionGranted = (cam_perm_status.status === 'granted' && mic_perm_status.status === 'granted');
         // Track whether user has granted camera permission
-        this.setState({ cameraPermissionGranted });
+        this.setState({ cameraPermissionGranted: camPermissionGranted });
     };
 
     setFlashMode = (flashMode) => this.setState({ flashMode });
@@ -56,7 +59,13 @@ export default class CameraPage extends React.Component {
             return <View />; // Indeterminate state while we are waiting for permission
         } else if (cameraPermissionGranted === false) {
             // TODO: redirect to different page, allow to ask for permissions again
-            return <Text>Camera access must be granted to use app.</Text>;
+            return (
+            <View style={[styles.alignElemsHorizCenter, styles.permissionsDeniedView]}>
+                <Text style={{fontSize: 20, textAlign: 'center'}}>Camera access must be granted to use app.</Text>
+                <Button title="Request Permissions Again" onPress={this.requestCameraPermissions} />
+                <Text style={{fontSize: 16, textAlign: 'center'}}>If this doesn't work you will need to manually change the permissions in your phone's settings.</Text>
+            </View>
+            );
         }
         return (
             <React.Fragment>
@@ -68,7 +77,7 @@ export default class CameraPage extends React.Component {
                         ref={camera => this.camera = camera}
                     />
                 </View>
-                {captures.length > 0 && <ScrollGallery captures={captures}/>}
+                {captures.length > 0 && <GalleryPreview captures={captures}/>}
                 <CameraToolBar 
                     capturing={capturing}
                     flashMode={flashMode}
