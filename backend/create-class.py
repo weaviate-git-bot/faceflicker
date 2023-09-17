@@ -25,6 +25,10 @@ class_obj = {
         {
             "name": "category",
             "dataType": ["string"]
+        },
+        {
+            "name": "base64",
+            "dataType": ["string"]
         }
     ]
 }

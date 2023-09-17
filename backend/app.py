@@ -5,6 +5,7 @@ import weaviate, openai, os, json
 from io import BytesIO
 from PIL import Image
 import base64
+from rembg import remove
 
 
 app = Flask(__name__)
@@ -66,7 +67,8 @@ def upload():
 
         if base64_data:
             # return jsonify({'base64_image': base64_data}), 200
-            print("base64!!")
+            # print("base64!!")
+            pass
         else:
             return jsonify({'error': 'Failed to convert image to Base64'}), 500
 
@@ -87,15 +89,22 @@ def upload():
 @app.route('/search', methods=['POST'])
 def search():
     base64_data = request.form.get("base64FrameData")
+    input = base64_to_image(base64_data)
+    output = remove(input)
+    jpeg_buffer = BytesIO()
+    output.convert('RGB').save(jpeg_buffer, format='JPEG')
+    foreground = Image.open(jpeg_buffer)
+    # foreground.show()
+    base64_foreground = image_to_base64(foreground)
 
-    # sourceImage = {"image": base64_data, "distance": 0.3}
-    sourceImage = {"image": base64_data}
+    # sourceImage = {"image": base64_foreground, "distance": 0.3}
+    sourceImage = {"image": base64_foreground}
 
     category = request.form.get("category")
 
     results = (
         client.query
-        .get("Picture", ["image","name"])
+        .get("Picture", ["image", "name", "base64"])
         .with_near_image(sourceImage, encode=False)
         .with_where({
             "path": ["category"],
@@ -103,15 +112,15 @@ def search():
             "valueText": category
         })
         .with_additional(["distance"])
-        # .with_limit(1)
+        .with_limit(1)
         .do()
     )
     print(results)
 
     # print(len(results["data"]["Get"]["Picture"]))
     if not results["data"]["Get"]["Picture"]:
-        return {"text": "noooooooooooooooo"}
-    similar = results["data"]["Get"]["Picture"][0]["image"]
+        return {"text": "noooooooooooooooo", "status": "fail"}
+    similar = results["data"]["Get"]["Picture"][0]["base64"]
     # decoded_image = base64_to_image(original)
     # if decoded_image:
     #     # decoded_image.show()
@@ -123,7 +132,7 @@ def search():
     texts = [obj["name"] for obj in results["data"]["Get"]["Picture"]]
     distances = [obj["_additional"]["distance"] for obj in results["data"]["Get"]["Picture"]]
     print({"texts": texts, "distances": distances})
-    return jsonify({"similar": similar, "original": base64_data, "text": text, "distance": distance})
+    return jsonify({"similar": similar, "original": base64_data, "text": text, "distance": distance, "status": "success"})
 
 
 if __name__ == '__main__':
