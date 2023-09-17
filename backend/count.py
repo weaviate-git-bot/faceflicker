@@ -7,11 +7,11 @@ def count():
     count = (
         client.query
         .aggregate(className)
-        # .with_where({
-        #     "path": ["name"],
-        #     "operator": "Equal",
-        #     "valueText": person_name
-        # })
+        .with_where({
+            "path": ["category"],
+            "operator": "Equal",
+            "valueText": "Animal"
+        })
         .with_meta_count().do()
     )
 
@@ -21,4 +21,18 @@ def count():
         count = count['data']['Aggregate'][className][0]['meta']['count']
         print(count)
 
+def delete():
+    result = (
+        client.batch.delete_objects(
+            class_name='Picture',
+            where={
+                'path': ['name'],
+                'operator': 'Equal',
+                'valueText': 'Rocky'
+            },
+        )
+    )
+    print(result)
+
 count()
+# delete()
