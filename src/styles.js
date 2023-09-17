@@ -121,7 +121,37 @@ export default StyleSheet.create({
         // height: 30,
         fontSize: 8,
     },
-    buttonStyle: {
+    
+    button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 32,
+        borderRadius: 4,
+        elevation: 3,
+        backgroundColor: '#f4511e',
+      },
+      buttonCTA: { // call to action button
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 16,
+        paddingHorizontal: 36,
+        borderRadius: 4,
+        elevation: 3,
+        backgroundColor: '#f4511e',
+      },
+      buttonText: {
+        fontSize: 16,
+        lineHeight: 21,
+        fontWeight: 'bold',
+        letterSpacing: 0.25,
+        color: 'white',
+      },
+      buttonTextCTA: {
         fontSize: 20,
-    },
+        lineHeight: 21,
+        fontWeight: 'bold',
+        letterSpacing: 0.25,
+        color: 'white',
+      },
 });

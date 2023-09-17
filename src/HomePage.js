@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, View, Text, Switch } from 'react-native';
+import { Button, View, Text, Switch, Pressable } from 'react-native';
 import styles from './styles';
 import {Picker} from '@react-native-picker/picker';
 
@@ -13,19 +13,6 @@ export default function HomeScreen({ navigation }) {
   // TODO: find out how to style buttons
     return (
       <View style={[styles.fullscreenFill, styles.alignElemsHorizCenter, {gap: 30, paddingTop: 30}]}>
-        <Button
-          title="Crowd Scanner"
-          onPress={() => {
-              navigation.navigate('Crowd Scanner', { searchCategory: selectedCategory, scanMode: scanModeEnabled ? 'Live' : 'Manual' })
-              console.log("Chose Category: " + selectedCategory);
-            }
-          }
-        />
-        <Button
-          title="App Details"
-          onPress={() => navigation.navigate('Details')}
-          style={styles.buttonStyle}
-        />
           <Text style={[styles.bigText, { fontWeight: 'bold'}]}>Search Settings</Text>
           {/* <View style={{flex: 1, alignItems: 'center', justifyContent: 'flex-start', gap: 20}}> */}
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
@@ -50,6 +37,26 @@ export default function HomeScreen({ navigation }) {
               </Picker>
             </View>
           {/* </View> */}
+          <Pressable style={styles.buttonCTA}
+          onPress={() => {
+              navigation.navigate('Crowd Scanner', { searchCategory: selectedCategory, scanMode: scanModeEnabled ? 'Live' : 'Manual' })
+              console.log("Chose Category: " + selectedCategory);
+            }
+          }>
+        <Text style={styles.buttonTextCTA}>START SCAN</Text>
+      </Pressable>
+        {/* <Button
+          title="Crowd Scanner"
+          onPress={() => {
+              navigation.navigate('Crowd Scanner', { searchCategory: selectedCategory, scanMode: scanModeEnabled ? 'Live' : 'Manual' })
+              console.log("Chose Category: " + selectedCategory);
+            }
+          }
+        /> */}
+        <Pressable style={styles.button}
+            onPress={() => navigation.navigate('Details')}>
+          <Text style={styles.buttonText}>App Details</Text>
+        </Pressable>
       </View>
     );
   }

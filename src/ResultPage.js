@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Button, View, Text, ScrollView, Alert } from 'react-native';
+import { Image, Button, View, Text, ScrollView, Alert, Pressable } from 'react-native';
 import styles from './styles';
 import * as MediaLibrary from "expo-media-library";
 import ViewShot from 'react-native-view-shot';
@@ -60,7 +60,13 @@ export default function ResultPage({ route, navigation }) {
                     </ViewShot>
                 }
             </View>
-            {resultStatus === 'success' && <Button title="Save Result" onPress={saveComparisonImage}/>}
+            {resultStatus === 'success' && 
+            <View style={styles.alignElemsCenter}>
+                <Pressable style={styles.button}
+                    onPress={saveComparisonImage}>
+                    <Text style={styles.buttonText}>Save Result</Text>
+                </Pressable></View>}
+            {/* <Button title="Save Result" onPress={saveComparisonImage}/>} */}
         </ScrollView>
     )
 }

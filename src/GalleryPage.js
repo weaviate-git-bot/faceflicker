@@ -8,7 +8,6 @@ export default class GalleryPage extends React.Component {
         const savedCaptures = this.props.route.params.savedCaptures;
         return (
                 <View style={[styles.alignElemsHorizCenter, styles.galPage]}>
-                <Text style={{fontSize: 16}}>Saved Moments: {savedCaptures.length} </Text>
                 <ScrollGallery captures={savedCaptures} />
             </View>
         )
