@@ -9,6 +9,10 @@ import * as FileSystem from 'expo-file-system';
 
 export default class CameraPage extends React.Component {
     camera = null;
+    searchCategory = this.props.route.params.searchCategory;
+    // if(!this.searchCategory) {
+    //     searchCategory = "Cartoon";
+    // }
     state = {
         captures: [],
         showFlashOption: false,
@@ -66,6 +70,9 @@ export default class CameraPage extends React.Component {
             const imgBase64 = await FileSystem.readAsStringAsync(photoData.uri, {encoding: FileSystem.EncodingType.Base64});
             const formData = new FormData();
             formData.append("base64FrameData", imgBase64);
+            // TODO: create settings page to allow user to choose search type
+            formData.append("category", this.searchCategory); // cartoon or Human
+            console.log("sending request: " + this.searchCategory);
             const response = await fetch(this.state.api_url, {
                 method: "POST",
                 mode: "no-cors",
@@ -76,6 +83,7 @@ export default class CameraPage extends React.Component {
             const jsonResponse = await response.json();
             console.log(Object.keys(jsonResponse));
             this.props.navigation.navigate('Result', { similarBase64: jsonResponse['similar'], ogPhotoData: jsonResponse['original'], name: jsonResponse['text'], distanceVal: jsonResponse['distance'] });
+            //this.props.navigation.navigate('Result', { similarBase64: imgBase64, ogPhotoData: imgBase64, name: "just testing bro", distanceVal: 0 });
           } catch (error) {
             console.error('Error during image processing', error);
             throw error;

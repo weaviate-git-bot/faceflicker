@@ -1,7 +1,7 @@
 import { StyleSheet, Dimensions } from 'react-native';
 // Obtain device display dimensions
 const { width: devDisplayWidth, height: devDisplayHeight } = Dimensions.get('window');
-// TODO: change var names
+
 export default StyleSheet.create({
     alignElemsHorizCenter: {
         flex: 1,
@@ -92,5 +92,16 @@ export default StyleSheet.create({
     resultPage: {
         padding: 10,
         gap: 10,
-    }
+        width: devDisplayWidth,
+        height: devDisplayHeight * 0.8,
+    },
+    resultImage: {
+        width: devDisplayWidth * 0.65,
+        height: devDisplayHeight * 0.35,
+    },
+    canvasStyle: {
+        width: devDisplayWidth, 
+        height: devDisplayHeight * .5, 
+        backgroundColor: 'black',
+    },
 });
