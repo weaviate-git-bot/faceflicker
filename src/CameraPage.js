@@ -4,6 +4,7 @@ import { Camera, CameraType, FlashMode } from 'expo-camera';
 import * as MediaLibrary from "expo-media-library";
 import styles from './styles';
 import CameraToolBar from './components/toolbar';
+import CameraToolBarLive from './components/toolbarls';
 import GalleryPreview from './components/gallerypreview';
 import * as FileSystem from 'expo-file-system';
 
@@ -91,7 +92,7 @@ export default class CameraPage extends React.Component {
             const formData = new FormData();
             formData.append("base64FrameData", imgBase64);
             // TODO: create settings page to allow user to choose search type
-            formData.append("category", this.searchCategory); // cartoon or Human
+            formData.append("category", this.searchCategory); // cartoon, human, or animal
             // formData.append("mode", this.state.scanMode); // Live or Manual
             console.log("sending request: " + this.searchCategory);
             const response = await fetch(this.state.api_url, {
@@ -227,7 +228,7 @@ export default class CameraPage extends React.Component {
                     />
                 </View>
                 {captures.length > 0 && <GalleryPreview captures={captures}/>}
-                {(scanMode === 'Manual') && <CameraToolBar 
+                {(scanMode === 'Manual') ? <CameraToolBar 
                     capturing={capturing}
                     flashMode={flashMode}
                     cameraType={cameraType}
@@ -239,6 +240,10 @@ export default class CameraPage extends React.Component {
                     onLongCapture={this.handleLongCapture}
                     onShortCapture={this.handleShortCapture}
                     navToGallery={this.exitToGallery}
+                  /> : <CameraToolBarLive
+                    flashMode={flashMode}
+                    cameraType={cameraType}
+                    setCameraType={this.setCameraType}
                   />}
             </React.Fragment>
         );

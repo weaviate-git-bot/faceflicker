@@ -21,7 +21,7 @@ function App() {
             fontWeight: 'bold',
           },
         }}>
-        <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'FlickerFace' }} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'FaceFlicker' }} />
         <Stack.Screen name="Details" component={DetailsPage} options={{ title: 'About Us' }}/>
         <Stack.Screen name="Crowd Scanner" component={CameraPage} />
         <Stack.Screen name="Gallery" component={GalleryPage} />
