@@ -32,21 +32,35 @@ export default function ResultPage({ route, navigation }) {
             console.log(error);
         }
     };
-    const { similarBase64: b64similar, ogPhotoData: b64og, name: similarName, distanceVal: dist } = route.params;
+    function floatToPercentage(floatValue, decimalPlaces=2) {
+        // Check if the input is a valid number
+        if (typeof floatValue !== 'number' || isNaN(floatValue)) {
+            return floatValue; // return unchanged value for simplicity in this use case
+        }
+        // Convert the float to a percentage string
+        const percentage = (floatValue * 100).toFixed(decimalPlaces); // Adjust decimal places as needed
+        return percentage + '%';
+    }
+    const { similarBase64: b64similar, ogPhotoData: b64og, name: similarName, distanceVal: dist, resultStatus: resultStatus } = route.params;
     var simSourceData = `data:image/jpg;base64,${b64similar}`;
     var ogSourceData = `data:image/jpg;base64,${b64og}`;
     // TODO: implement save result button
     return (
         <ScrollView style={styles.fullscreenFill}>
-            <View style={[styles.alignElemsHorizCenter, styles.resultPage]}>
-                <ViewShot ref={viewShotRef} options={{ format: 'jpg', quality: 0.9 }}>
-                    <Text style={{fontSize: 20, textAlign: 'center'}}>{similarName}</Text>
-                    <Text style={{fontSize: 16, textAlign: 'center'}}>Distance: {dist}</Text>
-                    <Image source={{ uri: ogSourceData}} style={styles.resultImage}/>
-                    <Image source={{ uri: simSourceData }} style={styles.resultImage}/>
-                </ViewShot>
+            <View style={[(resultStatus === 'success' ? styles.alignElemsHorizCenter : styles.alignElemsCenter), styles.resultPage]}>
+                {resultStatus === 'fail' ? 
+                    <View><Text style={{fontSize: 20, textAlign: 'center', padding: 16}}>Sorry, no match was found.</Text>
+                        <Button title="Try Again" onPress={() => navigation.navigate('Crowd Scanner')} />
+                    </View> : 
+                    <ViewShot ref={viewShotRef} options={{ format: 'jpg', quality: 0.9 }}>
+                        <Text style={{fontSize: 20, textAlign: 'center'}}>{similarName}</Text>
+                        <Text style={{fontSize: 16, textAlign: 'center'}}>Similarity: {floatToPercentage(dist, 1)}</Text>
+                        <Image source={{ uri: ogSourceData}} style={styles.resultImage}/>
+                        <Image source={{ uri: simSourceData }} style={styles.resultImage}/>
+                    </ViewShot>
+                }
             </View>
-            <Button title="Save Result" onPress={saveComparisonImage}/>
+            {resultStatus === 'success' && <Button title="Save Result" onPress={saveComparisonImage}/>}
         </ScrollView>
     )
 }

@@ -104,4 +104,24 @@ export default StyleSheet.create({
         height: devDisplayHeight * .5, 
         backgroundColor: 'black',
     },
+    /* Details page specific styles */
+    midText: {
+        fontSize: 16,
+    },
+    fullWideImg: {
+        width: devDisplayWidth,
+        height: devDisplayWidth * 0.7,
+    },
+
+    bigText: {
+        fontSize: 22,
+    },
+    pickerStyle: {
+        width: devDisplayWidth * 0.8,
+        // height: 30,
+        fontSize: 8,
+    },
+    buttonStyle: {
+        fontSize: 20,
+    },
 });

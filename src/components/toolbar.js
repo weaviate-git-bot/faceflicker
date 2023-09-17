@@ -33,7 +33,7 @@ export default ({
                         <Ionicons
                                 name={'images-outline'}
                                 color="white"
-                                size={30}
+                                size={36}
                             />
                 </TouchableOpacity>}
             </Col>
@@ -55,7 +55,7 @@ export default ({
                     <Ionicons
                         name="camera-reverse-outline"
                         color="white"
-                        size={30}
+                        size={36}
                     />
                 </TouchableOpacity>
             </Col>

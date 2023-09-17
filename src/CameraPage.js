@@ -103,8 +103,8 @@ export default class CameraPage extends React.Component {
             console.log("response obtained");
             const jsonResponse = await response.json();
             console.log(Object.keys(jsonResponse));
-            this.props.navigation.navigate('Result', { similarBase64: jsonResponse['similar'], ogPhotoData: jsonResponse['original'], name: jsonResponse['text'], distanceVal: jsonResponse['distance'] });
-            //this.props.navigation.navigate('Result', { similarBase64: imgBase64, ogPhotoData: imgBase64, name: "just testing bro", distanceVal: 0 });
+            this.props.navigation.navigate('Result', { similarBase64: jsonResponse['similar'], ogPhotoData: jsonResponse['original'], name: jsonResponse['text'], distanceVal: jsonResponse['distance'], resultStatus: jsonResponse['status'] });
+            //this.props.navigation.navigate('Result', { similarBase64: imgBase64, ogPhotoData: imgBase64, name: "just testing bro", distanceVal: 0, status: "success" });
           } catch (error) {
             console.error('Error during image processing', error);
             throw error;
@@ -123,7 +123,7 @@ export default class CameraPage extends React.Component {
     
     /* Live scan mode */
     exitToResultsPage = (jsonResult) => {
-        this.props.navigation.navigate('Result', { similarBase64: jsonResult['similar'], ogPhotoData: jsonResult['original'], name: jsonResult['text'], distanceVal: jsonResult['distance'] });
+        this.props.navigation.navigate('Result', { similarBase64: jsonResult['similar'], ogPhotoData: jsonResult['original'], name: jsonResult['text'], distanceVal: jsonResult['distance'], resultStatus: jsonResult['status'] });
     }
     // For live scan mode, periodically take photos to send to server, keep track of best result to display
     liveCamPeriodic = () => {
@@ -204,7 +204,6 @@ export default class CameraPage extends React.Component {
 
     render() {
         const { cameraPermissionGranted, flashMode, cameraType, capturing, showFlashOption, captures, scanMode } = this.state;
-
         if (cameraPermissionGranted === null) {
             return <View />; // Indeterminate state while we are waiting for permission
         } else if (cameraPermissionGranted === false) {
