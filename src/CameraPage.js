@@ -10,10 +10,12 @@ import * as FileSystem from 'expo-file-system';
 export default class CameraPage extends React.Component {
     camera = null;
     searchCategory = this.props.route.params.searchCategory;
-    // if(!this.searchCategory) {
-    //     searchCategory = "Cartoon";
-    // }
+    // scanMode = this.props.route.params.scanMode;
+    // TODO: set default vals if above are undefined
     state = {
+        scanMode: this.props.route.params.scanMode,
+        ranLiveScan: false,
+        camReady: false, // currently not used, due to issues with finding proper use of onCameraReady callback
         captures: [],
         showFlashOption: false,
         flashMode: FlashMode.off,  // Flash off by default
@@ -25,7 +27,25 @@ export default class CameraPage extends React.Component {
     };
     async componentDidMount() {
         await this.requestCameraPermissions();
+        // /* Live Mode */
+        if (this.state.scanMode === 'Live' && !this.state.ranLiveScan) {
+            console.log("Starting live scan!!!");
+            this.setState({ranLiveScan: true});
+            setTimeout(this.liveCamPeriodic, 1000); // give one second for camera to get ready
+        }
     };
+    // // Never runs: TODO: figure out proper usage of onCameraReady
+    // async onCameraReady() {
+    //     console.log("CAMERA READY!!!");
+    //     this.setState({camReady: true});
+    //     /* Live Mode */
+    //     if (this.state.scanMode === 'Live' && !this.state.ranLiveScan) {
+    //         console.log("Starting live scan!!!");
+    //         this.setState({ranLiveScan: true});
+    //         this.liveCamPeriodic();
+    //     }
+    // };
+        
     requestCameraPermissions = async () => {
         // Request camera permission
         const cam_perm_status = await Camera.requestCameraPermissionsAsync()
@@ -72,6 +92,7 @@ export default class CameraPage extends React.Component {
             formData.append("base64FrameData", imgBase64);
             // TODO: create settings page to allow user to choose search type
             formData.append("category", this.searchCategory); // cartoon or Human
+            // formData.append("mode", this.state.scanMode); // Live or Manual
             console.log("sending request: " + this.searchCategory);
             const response = await fetch(this.state.api_url, {
                 method: "POST",
@@ -99,9 +120,90 @@ export default class CameraPage extends React.Component {
     exitToGallery = () => {
         this.props.navigation.navigate('Gallery', { savedCaptures: this.state.captures, });
     };
+    
+    /* Live scan mode */
+    exitToResultsPage = (jsonResult) => {
+        this.props.navigation.navigate('Result', { similarBase64: jsonResult['similar'], ogPhotoData: jsonResult['original'], name: jsonResult['text'], distanceVal: jsonResult['distance'] });
+    }
+    // For live scan mode, periodically take photos to send to server, keep track of best result to display
+    liveCamPeriodic = () => {
+        let count = 0;
+        let currMinDistance = 1.0;
+        let bestJsonResponse = null;
+        let localHandleShortCaptureLive = this.handleShortCaptureLive;
+        let exitToResultsPage = this.exitToResultsPage;
+        function iteration() {
+          if (count < 10) {
+            console.log(`Iteration ${count + 1}`);
+            count++;
+            localHandleShortCaptureLive().then((jsonResponse) => {
+                // console.log(jsonResponse);
+                if(jsonResponse !== null) {
+                    // Compare min distance, keep smallest distance result
+                    if(bestJsonResponse === null || currMinDistance > jsonResponse['distance']){
+                        console.log("new min distance: " + jsonResponse['distance'] + " compared to old min distance: " + currMinDistance);
+                        currMinDistance = jsonResponse['distance'];
+                        bestJsonResponse = jsonResponse;
+                    }
+                }
+                iteration();
+                // TODO: if arbitrarily low distance is found, exit live mode and go to result page
+            }).catch((error) => {
+                console.error('Error in handleShortCaptureLive()', error);
+                // iteration(); // try again anyway
+            });
+            // setTimeout(iteration, 1000); // Schedule the next iteration after 1 second (1000 milliseconds)
+          } else {
+            console.log("done scanning; " + count + " pictures");
+            if(bestJsonResponse === null) {
+                // Every single capture failed; retry scan with half the number of pictures
+                count = 5
+                iteration();
+            }
+            exitToResultsPage(bestJsonResponse);
+          }
+        }
+        iteration(); // Start the first iteration
+      }
+
+    // Take a photo and add returned data to captures array
+    handleShortCaptureLive = async () => {
+        if(!this.state.capturing) { // && this.state.camReady
+            const photoData = await this.camera.takePictureAsync();
+            this.setState({ capturing: false, captures: [photoData, ...this.state.captures] })
+            this.saveImage(photoData.uri);
+            try {
+                const imgInfo = await FileSystem.getInfoAsync(photoData.uri, {size: true});
+                console.log(imgInfo);
+                const imgBase64 = await FileSystem.readAsStringAsync(photoData.uri, {encoding: FileSystem.EncodingType.Base64});
+                const formData = new FormData();
+                formData.append("base64FrameData", imgBase64);
+                // TODO: create settings page to allow user to choose search type
+                formData.append("category", this.searchCategory); // cartoon or Human
+                formData.append("mode", this.state.scanMode); // Live or Manual
+                console.log("sending request: " + this.searchCategory);
+                const response = await fetch(this.state.api_url, {
+                    method: "POST",
+                    mode: "no-cors",
+                    redirect: "follow",
+                    body: formData, 
+                });
+                console.log("response obtained");
+                const jsonResponse = await response.json();
+                console.log(Object.keys(jsonResponse));
+                return jsonResponse;
+            } catch (error) {
+                console.error('Error during image processing', error);
+                throw error;
+            }
+        } else {
+            console.log("Camera not ready yet");
+            return null;
+        }
+    };
 
     render() {
-        const { cameraPermissionGranted, flashMode, cameraType, capturing, showFlashOption, captures } = this.state;
+        const { cameraPermissionGranted, flashMode, cameraType, capturing, showFlashOption, captures, scanMode } = this.state;
 
         if (cameraPermissionGranted === null) {
             return <View />; // Indeterminate state while we are waiting for permission
@@ -126,7 +228,7 @@ export default class CameraPage extends React.Component {
                     />
                 </View>
                 {captures.length > 0 && <GalleryPreview captures={captures}/>}
-                <CameraToolBar 
+                {(scanMode === 'Manual') && <CameraToolBar 
                     capturing={capturing}
                     flashMode={flashMode}
                     cameraType={cameraType}
@@ -138,8 +240,8 @@ export default class CameraPage extends React.Component {
                     onLongCapture={this.handleLongCapture}
                     onShortCapture={this.handleShortCapture}
                     navToGallery={this.exitToGallery}
-                  />
+                  />}
             </React.Fragment>
         );
-    };
-};
+    }
+}
